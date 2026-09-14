@@ -1,0 +1,31 @@
+question,retrieved_source,answer,expected_keyword,keyword_found,grounded,correct
+What is the main goal of the project?,"Graduation_Project_L2.pdf, page 1","The main goal of the project is to build a complete AI product, from raw documents to a deployed, working RAG (Retrieval-Augmented Generation) web application, and publish it on GitHub.
+
+Sources: [Graduation_Project_L2.pdf, page 1], [Graduation_Project_L2.pdf, page 2]",RAG,True,True,True
+What is added in the Extended Track?,"Graduation_Project_L2.pdf, page 2","The Extended Track adds a Computer Vision/YOLO component for teams who want an added multimodal challenge.
+
+Sources: [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 1]",YOLO,True,True,True
+What must the RAG notebook be called?,"Graduation_Project_L2.pdf, page 2","rag_pipeline.ipynb
+
+Sources: [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 1], [Graduation_Project_L2.pdf, page 4], [Graduation_Project_L2.pdf, page 5]",rag_pipeline.ipynb,True,True,True
+How many sample questions are required?,"Graduation_Project_L2.pdf, page 2","10
+
+Sources: [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 1], [Graduation_Project_L2.pdf, page 3], [Graduation_Project_L2.pdf, page 4]",10,True,True,True
+Which backend endpoints are required?,"Graduation_Project_L2.pdf, page 3","POST /query and GET /health
+
+Sources: [Graduation_Project_L2.pdf, page 3], [Graduation_Project_L2.pdf, page 4], [Graduation_Project_L2.pdf, page 5], [Graduation_Project_L2.pdf, page 1]",/health,True,True,True
+What fields are returned by the query endpoint?,"Graduation_Project_L2.pdf, page 5","QueryRequest {question: str} and QueryResponse {answer: str, sources: list[str]}
+
+Sources: [Graduation_Project_L2.pdf, page 5], [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 3]",sources,True,True,True
+Which tools can be used for the frontend?,"Graduation_Project_L2.pdf, page 1","The frontend can be built using Streamlit or Gradio.
+
+Sources: [Graduation_Project_L2.pdf, page 1], [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 5]",Streamlit,True,True,True
+How should the frontend get the backend URL?,"Graduation_Project_L2.pdf, page 4","The backend URL should be read from an environment variable.
+
+Sources: [Graduation_Project_L2.pdf, page 4], [Graduation_Project_L2.pdf, page 3]",environment,True,True,True
+What files should Git ignore?,"Graduation_Project_L2.pdf, page 4","Small models/artifacts may be committed if under 50 MB. Initialise and commit: git init git add . git commit -m ""RAG assistant: notebook, FastAPI backend, frontend"" Create a public repository on GitHub, then: git remote add origin https://github.com/<your-username>/rag-assistant-app.git git branch -M main git push -u origin main
+
+Sources: [Graduation_Project_L2.pdf, page 4], [Graduation_Project_L2.pdf, page 1], [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 5]",.env,False,True,False
+What is required for the final presentation?,"Graduation_Project_L2.pdf, page 4","A live demo delivered in front of the instructors and a recorded video walkthrough of the application.
+
+Sources: [Graduation_Project_L2.pdf, page 4], [Graduation_Project_L2.pdf, page 2], [Graduation_Project_L2.pdf, page 1]",recorded,True,True,True
