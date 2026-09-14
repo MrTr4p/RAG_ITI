@@ -34,6 +34,8 @@ backend/app/               FastAPI application
 backend/data/vector_store/ Persisted Chroma database
 backend/tests/             API tests
 frontend/                  Streamlit chat application
+evaluation/                Saved ten-question results
+PRESENTATION.md            Demo and recording outline
 ```
 
 ## Data and method
@@ -41,6 +43,16 @@ frontend/                  Streamlit chat application
 The corpus contains the five-page `Graduation_Project_L2.pdf`. It explains the RAG assignment phases, required file structure, API, interface, evaluation, GitHub submission and common mistakes. Text is split into 700-character chunks with 120 characters of overlap. The overlap helps requirements near a chunk boundary stay together.
 
 Embeddings use `sentence-transformers/all-MiniLM-L6-v2`. The six closest chunks are added to a strict prompt that asks Ollama to use only the supplied text.
+
+### Vector store schema
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Document, page and chunk identifier |
+| `document` | string | Extracted chunk text |
+| `source` | string | Original filename |
+| `page` | integer | PDF page number |
+| `chunk` | integer | Chunk number on the page |
 
 ## Setup
 
@@ -134,6 +146,12 @@ pytest
 ```
 
 The tests cover a successful query and invalid empty input.
+
+The setup and tests were also checked from a fresh local clone of the repository.
+
+## Presentation
+
+The live-demo order and a short recording script are in `PRESENTATION.md`.
 
 ## Screenshot
 
