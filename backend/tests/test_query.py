@@ -66,3 +66,20 @@ def test_upload_text_file(tmp_path):
     assert response.status_code == 200
     assert response.json()["chunks"] == 1
     assert list(tmp_path.iterdir())[0].name == "001_notes.txt"
+
+
+def test_index_local_folder(tmp_path):
+    source_folder = tmp_path / "documents"
+    upload_folder = tmp_path / "uploads"
+    source_folder.mkdir()
+    (source_folder / "notes.txt").write_text("A local folder document")
+
+    client = make_client()
+    client.app.state.upload_dir = str(upload_folder)
+    client.app.state.allowed_document_root = str(tmp_path)
+    with client:
+        response = client.post("/index-folder", json={"path": str(source_folder)})
+
+    assert response.status_code == 200
+    assert response.json()["files"] == ["notes.txt"]
+    assert response.json()["chunks"] == 1

@@ -100,7 +100,7 @@ streamlit run app.py
 
 Open `http://localhost:8501`. API documentation is at `http://localhost:8000/docs`.
 
-Use the sidebar to select a folder containing PDF or TXT files, then click **Build document index**. The new folder replaces the current document index.
+Use the sidebar to upload several PDF/TXT files, or paste the path of a local folder and click **Index local folder**. A new upload replaces the current document index.
 
 ## Environment variables
 
@@ -117,7 +117,7 @@ Use the sidebar to select a folder containing PDF or TXT files, then click **Bui
 
 ## API
 
-`GET /health` reports whether the retriever loaded. `POST /query` accepts a question and returns an answer and its sources. `POST /upload` accepts one or more PDF/TXT files and rebuilds the index.
+`GET /health` reports whether the retriever loaded. `POST /query` accepts a question and returns an answer and its sources. `POST /upload` accepts PDF/TXT files. `POST /index-folder` indexes a local folder inside the configured home directory.
 
 ```bash
 curl -X POST http://localhost:8000/upload \

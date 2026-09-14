@@ -1,8 +1,8 @@
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 
-from app.schemas.query import QueryRequest, QueryResponse, UploadResponse
+from app.schemas.query import FolderRequest, QueryRequest, QueryResponse, UploadResponse
 from app.services.ingestion import extract_documents, save_uploads
 
 
@@ -63,6 +63,47 @@ async def upload_documents(
 
     return UploadResponse(
         message="Document index updated",
+        files=[name for name, _ in uploaded],
+        chunks=chunk_count,
+    )
+
+
+@router.post("/index-folder", response_model=UploadResponse)
+def index_folder(body: FolderRequest, request: Request) -> UploadResponse:
+    retriever = getattr(request.app.state, "retriever", None)
+    if retriever is None:
+        raise HTTPException(status_code=503, detail="RAG services are not ready")
+
+    folder = Path(body.path).expanduser().resolve()
+    allowed_root = Path(request.app.state.allowed_document_root).resolve()
+    if not folder.is_dir():
+        raise HTTPException(status_code=400, detail="Folder does not exist")
+    if folder != allowed_root and allowed_root not in folder.parents:
+        raise HTTPException(status_code=400, detail="Folder must be inside your home directory")
+
+    uploaded = []
+    total_size = 0
+    for path in folder.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in {".pdf", ".txt"}:
+            continue
+        content = path.read_bytes()
+        total_size += len(content)
+        if len(uploaded) >= 100 or total_size > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Folder is too large")
+        uploaded.append((path.relative_to(folder).as_posix(), content))
+
+    if not uploaded:
+        raise HTTPException(status_code=400, detail="No PDF or TXT files found")
+
+    try:
+        pages = extract_documents(uploaded)
+        chunk_count = retriever.replace_documents(pages)
+        save_uploads(request.app.state.upload_dir, uploaded)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return UploadResponse(
+        message="Folder index updated",
         files=[name for name, _ in uploaded],
         chunks=chunk_count,
     )

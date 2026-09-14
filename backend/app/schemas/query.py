@@ -14,3 +14,7 @@ class UploadResponse(BaseModel):
     message: str
     files: list[str]
     chunks: int
+
+
+class FolderRequest(BaseModel):
+    path: str = Field(min_length=1, max_length=1000)
