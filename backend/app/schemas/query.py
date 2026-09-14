@@ -9,3 +9,8 @@ class QueryResponse(BaseModel):
     answer: str
     sources: list[str]
 
+
+class UploadResponse(BaseModel):
+    message: str
+    files: list[str]
+    chunks: int

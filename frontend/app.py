@@ -1,14 +1,34 @@
 import streamlit as st
 
-from api_client import ask_question
+from api_client import ask_question, upload_documents
 
 
 st.set_page_config(page_title="Project Guide Assistant", page_icon="📚")
 st.title("📚 Project Guide Assistant")
-st.caption("Ask questions about the graduation project requirements")
+st.caption("Upload a document folder, then ask questions about its contents")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+with st.sidebar:
+    st.header("Your documents")
+    uploaded_files = st.file_uploader(
+        "Upload a folder of PDF or text files",
+        type=["pdf", "txt"],
+        accept_multiple_files="directory",
+        max_upload_size=20,
+    )
+    if st.button("Build document index", type="primary", disabled=not uploaded_files):
+        with st.spinner("Reading and indexing files..."):
+            try:
+                upload_result = upload_documents(uploaded_files)
+                st.session_state.messages = []
+                st.success(
+                    f"Indexed {len(upload_result['files'])} files into "
+                    f"{upload_result['chunks']} chunks."
+                )
+            except Exception:
+                st.error("Upload failed. Use text-based PDF or TXT files under 20 MB.")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -41,4 +61,3 @@ if question:
                 )
             except Exception:
                 st.error("The assistant is unavailable. Check that the backend is running.")
-

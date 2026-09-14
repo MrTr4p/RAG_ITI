@@ -3,6 +3,5 @@
   "chunk_size": 700,
   "chunk_overlap": 120,
   "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
-  "ollama_model": "qwen2.5:3b",
   "chunk_count": 19
 }

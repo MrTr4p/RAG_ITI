@@ -28,6 +28,7 @@ def create_app(load_services: bool = True) -> FastAPI:
 
     setup_logging()
     api = FastAPI(title=settings.app_name, version="1.0.0", lifespan=lifespan)
+    api.state.upload_dir = settings.upload_dir
     api.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.frontend_origin],
@@ -40,4 +41,3 @@ def create_app(load_services: bool = True) -> FastAPI:
 
 
 app = create_app()
-

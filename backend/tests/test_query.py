@@ -21,6 +21,9 @@ class FakeRetriever:
             )
         ]
 
+    def replace_documents(self, pages):
+        return len(pages)
+
 
 class FakeGenerator:
     def answer(self, question, chunks):
@@ -50,3 +53,16 @@ def test_query_invalid_input():
 
     assert response.status_code == 422
 
+
+def test_upload_text_file(tmp_path):
+    client = make_client()
+    client.app.state.upload_dir = str(tmp_path)
+    with client:
+        response = client.post(
+            "/upload",
+            files=[("files", ("notes.txt", b"A short test document", "text/plain"))],
+        )
+
+    assert response.status_code == 200
+    assert response.json()["chunks"] == 1
+    assert list(tmp_path.iterdir())[0].name == "001_notes.txt"

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen2.5:3b"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_store_path: str = str(BACKEND_DIR / "data" / "vector_store")
+    upload_dir: str = str(BACKEND_DIR / "data" / "uploads")
     collection_name: str = "project_guide"
     frontend_origin: str = "http://localhost:8501"
     top_k: int = 6
