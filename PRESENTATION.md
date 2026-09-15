@@ -1,28 +1,89 @@
-# Presentation Plan
+---
+title: "TeachBack AI"
+subtitle: "Document-grounded learning through teaching"
+author: "RAG Final Project"
+date: "September 2026"
+---
 
-## Live demo
+# The learning gap
 
-1. Explain the idea: students learn a topic by teaching it to an AI student.
-2. Upload course notes and generate important topics.
-3. Choose an audience and explain one topic in your own words.
-4. Show the accuracy, clarity, completeness and mastery scores.
-5. Show the missing points, misconceptions and jargon detector.
-6. Open the cited PDF evidence.
-7. Answer the AI student's follow-up question by starting a reteach attempt.
-8. Open the mistake challenge and correct the false statement.
-9. Open the progress dashboard and show the saved attempts.
-10. Briefly show the API documentation and automated tests.
+## Passive review can feel like mastery
 
-## Recording script
+- **Explain** a topic instead of recognizing familiar words
+- **Defend** the explanation through contextual follow-up questions
+- **Improve** using evidence-grounded feedback and repeated attempts
 
-"This is TeachBack AI, a learning assistant based on the idea that to teach is to learn twice. A student uploads learning material and explains a generated topic to an AI student. The backend retrieves the relevant document sections and a local Ollama model evaluates the explanation. It scores accuracy, clarity and completeness, finds missing ideas and misconceptions, and detects jargon that may confuse the selected audience. It also asks a follow-up question and creates a false statement for the student to correct. Every attempt is saved in the progress dashboard, and the source pages keep the feedback grounded in the uploaded material."
+> **Core idea:** To teach is to learn twice.
 
-## Before presenting
+::: notes
+Open with the problem: students often mistake recognition for mastery. TeachBack AI asks them to produce, defend, and improve an explanation instead.
+:::
 
-- Start Ollama and confirm `qwen2.5:3b` is available.
-- Start FastAPI on port 8000.
-- Start Streamlit on port 8501.
-- Try the demo questions before recording.
-- Complete one TeachBack session so the progress dashboard has data.
-- Record the whole application window and keep the evidence expander visible.
-- Save a screenshot to `assets/app-screenshot.png` and add it to the README.
+# One focused learning workflow
+
+| 1. Ground | 2. Teach | 3. Evaluate | 4. Improve |
+|:--|:--|:--|:--|
+| Upload PDF/TXT notes | Choose a topic and audience | Score the full conversation | Correct a mistake or reteach |
+| Extract and index text | Explain for up to six turns | Find gaps, misconceptions, and jargon | Compare attempts over time |
+
+The same indexed documents support topic generation, contextual questions, cited answers, final evaluation, and progress tracking.
+
+::: notes
+Emphasize that this is more than document chat. The user teaches, the AI asks substantive questions, and the final feedback is grounded in the source material.
+:::
+
+# The product experience
+
+![](assets/app-screenshot.png){width=11.8in}
+
+::: notes
+Point out the three tabs: TeachBack session, Ask the documents, and Progress. The sidebar accepts PDF/TXT uploads or a local folder.
+:::
+
+# Architecture and runtime flow
+
+![](assets/teachback-architecture.png){width=11.9in}
+
+::: notes
+Walk through the three layers: knowledge preparation, the interactive TeachBack loop, and final evaluation. Green dashed lines show retrieved evidence supplied from ChromaDB.
+:::
+
+# Feedback designed for action
+
+- **Scoring:** accuracy, clarity, completeness, and overall mastery
+- **Diagnosis:** correct points, missing ideas, and misconceptions
+- **Audience awareness:** unexplained jargon paired with simpler wording
+- **Active practice:** mistake correction, citations, and progress across attempts
+
+::: notes
+Show an evaluated session during the demo. Expand the improved explanation and evidence, then open the mistake-correction challenge.
+:::
+
+# Local-first RAG implementation
+
+| Layer | Technology |
+|:--|:--|
+| Interface | Streamlit |
+| API | FastAPI |
+| Extraction | PyPDF + plain text |
+| Embeddings | all-MiniLM-L6-v2 |
+| Retrieval | ChromaDB |
+| Generation | Ollama + Qwen 2.5 3B |
+
+**Validated:** 15/15 automated tests pass; 9/10 saved RAG checks meet the expected result.
+
+::: notes
+The system runs locally, which keeps the learning material and generation workflow on the user's machine. Mention that the remaining saved evaluation miss is visible in evaluation/results.csv rather than hidden.
+:::
+
+# Demo: from upload to mastery
+
+1. Upload course notes and start an AI-assigned topic.
+2. Teach, answer a contextual follow-up, and finish the session.
+3. Review feedback, correct a mistake, and show saved progress.
+
+> **Takeaway:** Personal documents become an evidence-grounded AI student that exposes gaps and helps learners build mastery.
+
+::: notes
+Close by returning to the core idea: understanding becomes visible when a learner can teach, answer follow-ups, and correct mistakes using evidence.
+:::

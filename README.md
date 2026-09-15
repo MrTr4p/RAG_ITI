@@ -52,7 +52,8 @@ backend/data/vector_store/ Persisted Chroma database
 backend/tests/             API tests
 frontend/                  Streamlit learning application
 evaluation/                Saved ten-question results
-PRESENTATION.md            Demo and recording outline
+PRESENTATION.md            Slide source and presenter notes
+docs/                      Exported project presentation
 ```
 
 ## RAG and TeachBack method
@@ -222,7 +223,7 @@ The setup and tests were also checked from a fresh local clone of the repository
 
 ## Presentation
 
-The live-demo order and recording outline are in `PRESENTATION.md`.
+The concise project deck is available as [PowerPoint](docs/TeachBack_AI_Presentation.pptx). Its editable Markdown source and presenter notes are in [PRESENTATION.md](PRESENTATION.md).
 
 ## Screenshot
 
