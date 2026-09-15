@@ -17,17 +17,56 @@ class FakeRetriever:
         return [
             SimpleNamespace(
                 text="The project needs a FastAPI backend.",
-                citation="Graduation_Project_L2.pdf, page 3",
+                citation="course_notes.pdf, page 3",
             )
         ]
 
     def replace_documents(self, pages):
         return len(pages)
 
+    def sample_chunks(self, limit):
+        return self.search("topics", limit)
+
 
 class FakeGenerator:
     def answer(self, question, chunks):
-        return "Use FastAPI [Graduation_Project_L2.pdf, page 3]."
+        return "Use FastAPI [course_notes.pdf, page 3]."
+
+    def generate_topics(self, chunks, count):
+        return ["FastAPI", "RAG workflow", "Vector databases"][:count]
+
+    def evaluate_teachback(self, topic, explanation, audience, chunks):
+        return {
+            "scores": {
+                "accuracy": 90,
+                "clarity": 80,
+                "completeness": 70,
+                "overall": 80,
+            },
+            "correct_points": ["FastAPI provides the backend"],
+            "missing_points": ["Explain the API routes"],
+            "misconceptions": [],
+            "feedback": "Good explanation with one missing detail.",
+            "follow_up_question": "What does the query route return?",
+            "improved_explanation": "FastAPI exposes the RAG pipeline through API routes.",
+        }
+
+    def make_challenge(self, topic, chunks):
+        return "FastAPI stores document embeddings by itself."
+
+    def check_correction(self, topic, statement, correction, chunks):
+        return {"correct": True, "score": 95, "feedback": "Correct. Chroma stores them."}
+
+
+class FakeProgressStore:
+    def __init__(self):
+        self.sessions = []
+
+    def list_sessions(self):
+        return self.sessions
+
+    def save(self, session):
+        self.sessions.append(session)
 
 
 def make_client():
@@ -35,6 +74,7 @@ def make_client():
     app.state.retriever = FakeRetriever()
     app.state.generator = FakeGenerator()
     app.state.top_k = 3
+    app.state.progress_store = FakeProgressStore()
     return TestClient(app)
 
 
@@ -44,7 +84,7 @@ def test_query_happy_path():
 
     assert response.status_code == 200
     assert "FastAPI" in response.json()["answer"]
-    assert response.json()["sources"] == ["Graduation_Project_L2.pdf, page 3"]
+    assert response.json()["sources"] == ["course_notes.pdf, page 3"]
 
 
 def test_query_invalid_input():
@@ -83,3 +123,50 @@ def test_index_local_folder(tmp_path):
     assert response.status_code == 200
     assert response.json()["files"] == ["notes.txt"]
     assert response.json()["chunks"] == 1
+
+
+def test_generate_teachback_topics():
+    with make_client() as client:
+        response = client.post("/teachback/topics", json={"count": 3})
+
+    assert response.status_code == 200
+    assert response.json()["topics"] == ["FastAPI", "RAG workflow", "Vector databases"]
+    assert response.json()["sources"] == ["course_notes.pdf, page 3"]
+
+
+def test_evaluate_teachback_and_save_progress():
+    client = make_client()
+    with client:
+        response = client.post(
+            "/teachback/evaluate",
+            json={
+                "topic": "FastAPI",
+                "explanation": "FastAPI is used to create the backend API for the RAG system.",
+                "audience": "A beginner",
+            },
+        )
+        progress = client.get("/teachback/progress")
+
+    assert response.status_code == 200
+    assert response.json()["scores"]["overall"] == 80
+    assert response.json()["mastered"] is True
+    assert progress.json()["summary"]["total_sessions"] == 1
+    assert progress.json()["summary"]["mastered_topics"] == 1
+
+
+def test_mistake_challenge_and_correction():
+    with make_client() as client:
+        challenge = client.post("/teachback/challenge", json={"topic": "FastAPI"})
+        correction = client.post(
+            "/teachback/correction",
+            json={
+                "topic": "FastAPI",
+                "statement": challenge.json()["statement"],
+                "correction": "Chroma stores embeddings, while FastAPI exposes the API routes.",
+            },
+        )
+
+    assert challenge.status_code == 200
+    assert correction.status_code == 200
+    assert correction.json()["correct"] is True
+    assert correction.json()["score"] == 95

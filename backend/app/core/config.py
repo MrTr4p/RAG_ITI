@@ -7,12 +7,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
-    app_name: str = "Project Guide Assistant"
+    app_name: str = "TeachBack AI"
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:3b"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_store_path: str = str(BACKEND_DIR / "data" / "vector_store")
     upload_dir: str = str(BACKEND_DIR / "data" / "uploads")
+    progress_file: str = str(BACKEND_DIR / "data" / "teachback_progress.json")
     allowed_document_root: str = str(Path.home())
     collection_name: str = "project_guide"
     frontend_origin: str = "http://localhost:8501"

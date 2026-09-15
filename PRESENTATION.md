@@ -2,18 +2,19 @@
 
 ## Live demo
 
-1. Explain that the assistant answers questions about the graduation project PDF.
-2. Show the source document and the executed notebook.
-3. Show the 19 stored chunks and the 10-question evaluation table.
-4. Open `http://localhost:8000/docs` and call `GET /health`.
-5. Open the Streamlit application and ask: `What must the frontend include?`
-6. Point out the answer and its cited PDF pages.
-7. Ask an unrelated question to show that the assistant stays grounded.
-8. Briefly show the backend, frontend and test folders.
+1. Explain the idea: students learn a topic by teaching it to an AI student.
+2. Upload course notes and generate important topics.
+3. Choose an audience and explain one topic in your own words.
+4. Show the accuracy, clarity, completeness and mastery scores.
+5. Show the missing points, misconceptions and cited PDF pages.
+6. Answer the AI student's follow-up question by starting a reteach attempt.
+7. Open the mistake challenge and correct the false statement.
+8. Open the progress dashboard and show the saved attempts.
+9. Briefly show the API documentation and automated tests.
 
 ## Recording script
 
-"This is my Project Guide RAG Assistant. It reads the graduation project PDF, splits its five pages into 19 overlapping chunks, creates embeddings and stores them in ChromaDB. When a user asks a question, FastAPI retrieves the closest chunks and sends only that context to the local qwen2.5 model through Ollama. The Streamlit interface displays the answer and its sources. I tested ten questions in the notebook, nine passed the correctness check, and all ten answers included sources. The backend also has tests for a valid query and invalid input."
+"This is TeachBack AI, a learning assistant based on the idea that to teach is to learn twice. A student uploads learning material and explains a generated topic to an AI student. The backend retrieves the relevant document sections and a local Ollama model evaluates the explanation. It scores accuracy, clarity and completeness, finds missing ideas and misconceptions, asks a follow-up question and creates a false statement for the student to correct. Every attempt is saved in the progress dashboard, and the source pages keep the feedback grounded in the uploaded material."
 
 ## Before presenting
 
@@ -21,5 +22,6 @@
 - Start FastAPI on port 8000.
 - Start Streamlit on port 8501.
 - Try the demo questions before recording.
-- Record the whole application window and keep the source expander visible.
+- Complete one TeachBack session so the progress dashboard has data.
+- Record the whole application window and keep the evidence expander visible.
 - Save a screenshot to `assets/app-screenshot.png` and add it to the README.

@@ -54,3 +54,69 @@ def index_folder(folder_path: str) -> dict:
     )
     response.raise_for_status()
     return response.json()
+
+
+def generate_topics(count: int = 5) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/topics",
+        json={"count": count},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def evaluate_teachback(topic: str, explanation: str, audience: str) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/evaluate",
+        json={"topic": topic, "explanation": explanation, "audience": audience},
+        timeout=180,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def create_challenge(topic: str) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/challenge",
+        json={"topic": topic},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def check_correction(topic: str, statement: str, correction: str) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/correction",
+        json={"topic": topic, "statement": statement, "correction": correction},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def get_progress() -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.get(f"{api_base_url}/teachback/progress", timeout=30)
+    response.raise_for_status()
+    return response.json()

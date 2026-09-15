@@ -60,6 +60,22 @@ class Retriever:
             )
         return chunks
 
+    def sample_chunks(self, limit: int = 12) -> list[RetrievedChunk]:
+        with self.lock:
+            result = self.collection.get(limit=limit)
+
+        chunks = []
+        for text, metadata in zip(result["documents"], result["metadatas"]):
+            chunks.append(
+                RetrievedChunk(
+                    text=text,
+                    source=metadata["source"],
+                    page=int(metadata["page"]),
+                    distance=0,
+                )
+            )
+        return chunks
+
     def replace_documents(self, pages: list[dict]) -> int:
         chunks = []
         for page in pages:
