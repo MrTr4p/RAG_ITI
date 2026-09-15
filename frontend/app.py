@@ -13,6 +13,10 @@ from api_client import (
 
 
 st.set_page_config(page_title="TeachBack AI", page_icon="🧠", layout="wide")
+st.markdown(
+    "<style>[data-testid='stAppDeployButton'] {display: none;}</style>",
+    unsafe_allow_html=True,
+)
 st.title("🧠 TeachBack AI")
 st.caption("Upload learning material, teach it to the AI, and discover what you really understand.")
 
