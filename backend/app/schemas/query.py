@@ -53,6 +53,13 @@ class TeachBackScores(BaseModel):
     overall: int = Field(ge=0, le=100)
 
 
+class JargonItem(BaseModel):
+    term: str
+    reason: str
+    simple_version: str
+    question: str
+
+
 class TeachBackResponse(BaseModel):
     session_id: str
     created_at: str
@@ -63,6 +70,7 @@ class TeachBackResponse(BaseModel):
     correct_points: list[str]
     missing_points: list[str]
     misconceptions: list[str]
+    jargon: list[JargonItem] = Field(default_factory=list)
     feedback: str
     follow_up_question: str
     improved_explanation: str

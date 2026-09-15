@@ -177,6 +177,7 @@ def evaluate_teachback(body: TeachBackRequest, request: Request) -> TeachBackRes
         correct_points=result["correct_points"],
         missing_points=result["missing_points"],
         misconceptions=result["misconceptions"],
+        jargon=result["jargon"],
         feedback=result["feedback"],
         follow_up_question=result["follow_up_question"],
         improved_explanation=result["improved_explanation"],

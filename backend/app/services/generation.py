@@ -74,6 +74,9 @@ Student explanation:
 
 Give accuracy, clarity and completeness scores from 0 to 100. Be supportive but honest.
 Find correct ideas, important missing ideas and actual misconceptions. Ask one short follow-up question.
+Detect up to five technical terms the student used without explaining clearly enough for the intended audience.
+For every jargon term, explain the problem, give a simpler version and ask the student to explain it without using the term.
+Do not mark a technical term as jargon when the student already explained it clearly.
 Write a better explanation suitable for the intended audience.
 Return only JSON with this exact structure:
 {{
@@ -81,6 +84,7 @@ Return only JSON with this exact structure:
   "correct_points": [],
   "missing_points": [],
   "misconceptions": [],
+  "jargon": [{{"term": "", "reason": "", "simple_version": "", "question": ""}}],
   "feedback": "",
   "follow_up_question": "",
   "improved_explanation": ""
@@ -100,6 +104,7 @@ Material:
             "correct_points": self._text_list(data.get("correct_points")),
             "missing_points": self._text_list(data.get("missing_points")),
             "misconceptions": self._text_list(data.get("misconceptions")),
+            "jargon": self._jargon_items(data.get("jargon")),
             "feedback": str(data.get("feedback", "Keep teaching and improve the missing points.")),
             "follow_up_question": str(data.get("follow_up_question", "Can you explain the main idea with an example?")),
             "improved_explanation": str(data.get("improved_explanation", explanation)),
@@ -172,3 +177,28 @@ Material:
         if not isinstance(value, list):
             return []
         return [str(item).strip() for item in value if str(item).strip()]
+
+    @staticmethod
+    def _jargon_items(value) -> list[dict]:
+        if not isinstance(value, list):
+            return []
+
+        items = []
+        for item in value[:5]:
+            if not isinstance(item, dict) or not str(item.get("term", "")).strip():
+                continue
+            term = str(item["term"]).strip()
+            items.append(
+                {
+                    "term": term,
+                    "reason": str(item.get("reason", "This term may be unclear.")).strip(),
+                    "simple_version": str(item.get("simple_version", "")).strip(),
+                    "question": str(
+                        item.get(
+                            "question",
+                            f"Can you explain {term} without using that term?",
+                        )
+                    ).strip(),
+                }
+            )
+        return items

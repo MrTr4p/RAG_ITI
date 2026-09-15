@@ -9,6 +9,7 @@ A RAG-based learning assistant built around the idea that "to teach is to learn 
 - Teach different audiences: a child, beginner, classmate, professor or interviewer
 - Receive accuracy, clarity, completeness and mastery scores
 - Find missing points and misconceptions
+- Detect unexplained jargon and suggest simpler wording
 - Answer an adaptive follow-up question
 - Correct a believable mistake created by the AI student
 - Reteach a topic and compare attempts
@@ -55,7 +56,7 @@ PRESENTATION.md            Demo and recording outline
 
 The user supplies PDF or TXT learning material. Text is split into 700-character chunks with 120 characters of overlap. The overlap helps ideas near a chunk boundary stay together.
 
-Embeddings use `sentence-transformers/all-MiniLM-L6-v2`. Relevant chunks are added to a strict prompt that asks Ollama to use only the supplied material. During a TeachBack session, the model evaluates the student's explanation, produces three scores, identifies knowledge gaps, asks a follow-up question and writes a clearer example explanation. Each attempt is saved locally for the dashboard.
+Embeddings use `sentence-transformers/all-MiniLM-L6-v2`. Relevant chunks are added to a strict prompt that asks Ollama to use only the supplied material. During a TeachBack session, the model evaluates the student's explanation, produces three scores, identifies knowledge gaps, detects unexplained jargon for the selected audience, asks a follow-up question and writes a clearer example explanation. Each attempt is saved locally for the dashboard.
 
 ### Vector store schema
 

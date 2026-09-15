@@ -205,6 +205,19 @@ with teach_tab:
             show_list("Important points you missed", evaluation["missing_points"], "You covered the important points.")
             show_list("Misconceptions", evaluation["misconceptions"], "No misconceptions found.")
 
+        jargon = evaluation.get("jargon", [])
+        st.markdown("### Jargon detector")
+        if jargon:
+            st.warning("Some terms may be difficult for your selected audience.")
+            for item in jargon:
+                with st.expander(item["term"]):
+                    st.write(item["reason"])
+                    if item["simple_version"]:
+                        st.write(f"**Simpler version:** {item['simple_version']}")
+                    st.info(item["question"])
+        else:
+            st.success("Your wording was clear for the selected audience.")
+
         st.markdown("### AI student's follow-up question")
         st.info(evaluation["follow_up_question"])
 

@@ -46,6 +46,14 @@ class FakeGenerator:
             "correct_points": ["FastAPI provides the backend"],
             "missing_points": ["Explain the API routes"],
             "misconceptions": [],
+            "jargon": [
+                {
+                    "term": "API",
+                    "reason": "A beginner may not know this abbreviation.",
+                    "simple_version": "A way for programs to communicate.",
+                    "question": "Can you explain API without using the term API?",
+                }
+            ],
             "feedback": "Good explanation with one missing detail.",
             "follow_up_question": "What does the query route return?",
             "improved_explanation": "FastAPI exposes the RAG pipeline through API routes.",
@@ -150,6 +158,7 @@ def test_evaluate_teachback_and_save_progress():
     assert response.status_code == 200
     assert response.json()["scores"]["overall"] == 80
     assert response.json()["mastered"] is True
+    assert response.json()["jargon"][0]["term"] == "API"
     assert progress.json()["summary"]["total_sessions"] == 1
     assert progress.json()["summary"]["mastered_topics"] == 1
 
