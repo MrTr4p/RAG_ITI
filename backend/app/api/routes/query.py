@@ -16,6 +16,10 @@ from app.schemas.query import (
     QueryResponse,
     TeachBackRequest,
     TeachBackResponse,
+    TeachBackStartRequest,
+    TeachBackStartResponse,
+    TeachBackTurnRequest,
+    TeachBackTurnResponse,
     TopicRequest,
     TopicResponse,
     UploadResponse,
@@ -142,6 +146,66 @@ def teachback_topics(body: TopicRequest, request: Request) -> TopicResponse:
         raise HTTPException(status_code=400, detail="Upload learning material first")
 
     return TopicResponse(topics=topics, sources=_sources(chunks))
+
+
+@router.post("/teachback/start", response_model=TeachBackStartResponse)
+def start_teachback(
+    body: TeachBackStartRequest, request: Request
+) -> TeachBackStartResponse:
+    retriever = getattr(request.app.state, "retriever", None)
+    generator = getattr(request.app.state, "generator", None)
+    if retriever is None or generator is None:
+        raise HTTPException(status_code=503, detail="RAG services are not ready")
+
+    requested_topic = (body.topic or "").strip()
+    if body.topic is not None and len(requested_topic) < 2:
+        raise HTTPException(status_code=400, detail="Topic must contain at least two characters")
+
+    try:
+        if requested_topic:
+            topic = requested_topic
+            chunks = retriever.search(topic, 8)
+        else:
+            chunks = retriever.sample_chunks(16)
+            topics = generator.generate_topics(chunks, 1)
+            topic = topics[0] if topics else ""
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Session start failed: {exc}") from exc
+    if not topic or not chunks:
+        raise HTTPException(status_code=400, detail="Upload learning material first")
+
+    return TeachBackStartResponse(
+        topic=topic,
+        message=f"I am learning about {topic}. Could you explain it to me in your own words?",
+        sources=_sources(chunks),
+    )
+
+
+@router.post("/teachback/turn", response_model=TeachBackTurnResponse)
+def continue_teachback(
+    body: TeachBackTurnRequest, request: Request
+) -> TeachBackTurnResponse:
+    retriever = getattr(request.app.state, "retriever", None)
+    generator = getattr(request.app.state, "generator", None)
+    if retriever is None or generator is None:
+        raise HTTPException(status_code=503, detail="RAG services are not ready")
+    if body.conversation[-1].role != "teacher":
+        raise HTTPException(status_code=400, detail="The latest turn must be from the teacher")
+
+    try:
+        chunks = retriever.search(body.topic, 4)
+        if not chunks:
+            raise ValueError("Upload learning material first")
+        question = generator.ask_follow_up(
+            body.topic,
+            body.audience,
+            [turn.model_dump() for turn in body.conversation],
+            chunks,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Student reply failed: {exc}") from exc
+
+    return TeachBackTurnResponse(question=question, sources=_sources(chunks))
 
 
 @router.post("/teachback/evaluate", response_model=TeachBackResponse)

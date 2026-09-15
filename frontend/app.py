@@ -3,11 +3,12 @@ import streamlit as st
 from api_client import (
     ask_question,
     check_correction,
+    continue_teachback,
     create_challenge,
     evaluate_teachback,
-    generate_topics,
     get_progress,
     index_folder,
+    start_teachback,
     upload_documents,
 )
 
@@ -22,8 +23,8 @@ st.caption("Upload learning material, teach it to the AI, and discover what you 
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "topics" not in st.session_state:
-    st.session_state.topics = []
+if "teachback_session" not in st.session_state:
+    st.session_state.teachback_session = None
 if "evaluation" not in st.session_state:
     st.session_state.evaluation = None
 if "challenge" not in st.session_state:
@@ -34,17 +35,24 @@ if "correction_result" not in st.session_state:
 
 def reset_learning_session():
     st.session_state.messages = []
-    st.session_state.topics = []
+    st.session_state.teachback_session = None
     st.session_state.evaluation = None
     st.session_state.challenge = None
     st.session_state.correction_result = None
 
 
-def start_reteach():
-    st.session_state.teachback_explanation = ""
+def start_new_teachback():
+    st.session_state.teachback_session = None
     st.session_state.evaluation = None
     st.session_state.challenge = None
     st.session_state.correction_result = None
+
+
+def teaching_transcript(messages):
+    labels = {"teacher": "Teacher", "student": "AI student"}
+    return "\n\n".join(
+        f"{labels[message['role']]}: {message['content']}" for message in messages
+    )
 
 
 def show_list(title, items, empty_text):
@@ -131,59 +139,149 @@ with ask_tab:
 
 with teach_tab:
     st.subheader("Teach the AI student")
-    st.write("Explain a topic in your own words. The AI will check the explanation against your documents.")
+    st.write(
+        "Choose a topic or let the AI pick one from your documents. Teach it naturally, "
+        "answer its questions, then finish when you are ready for feedback."
+    )
 
-    topic_column, audience_column = st.columns([2, 1])
-    with topic_column:
-        if st.button("Generate topics from my documents", key="generate_topics"):
-            with st.spinner("Finding the main topics..."):
-                try:
-                    result = generate_topics()
-                    st.session_state.topics = result["topics"]
-                    st.session_state.evaluation = None
-                    st.rerun()
-                except Exception:
-                    st.error("Topics could not be generated. Upload documents first.")
-
-        if st.session_state.topics:
-            selected_topic = st.selectbox(
-                "Choose a topic",
-                st.session_state.topics + ["Write my own topic"],
+    session = st.session_state.teachback_session
+    if session is None:
+        topic_mode = st.radio(
+            "Who chooses the topic?",
+            ["Let the AI choose", "Choose my own topic"],
+            horizontal=True,
+        )
+        chosen_topic = None
+        if topic_mode == "Choose my own topic":
+            chosen_topic = st.text_input(
+                "Topic you want to teach",
+                placeholder="Example: Reinforcement learning",
+                max_chars=200,
             )
-            if selected_topic == "Write my own topic":
-                topic = st.text_input("Your topic")
-            else:
-                topic = selected_topic
-        else:
-            topic = st.text_input("Topic", placeholder="Example: Supervised learning")
-
-    with audience_column:
         audience = st.selectbox(
             "Teach this audience",
             ["A beginner", "A child", "A classmate", "A professor", "An interviewer"],
         )
-
-    explanation = st.text_area(
-        "Your explanation",
-        key="teachback_explanation",
-        height=220,
-        placeholder="Teach the topic as if the AI knows nothing about it...",
-    )
-    if st.button(
-        "Evaluate my teaching",
-        type="primary",
-        disabled=len(topic.strip()) < 2 or len(explanation.strip()) < 20,
-    ):
-        with st.spinner("Checking your explanation against the documents..."):
-            try:
-                st.session_state.evaluation = evaluate_teachback(
-                    topic.strip(), explanation.strip(), audience
+        if st.button("Start a TeachBack session", type="primary"):
+            if chosen_topic is not None and len(chosen_topic.strip()) < 2:
+                st.warning("Enter a topic before starting the session.")
+            else:
+                spinner_text = (
+                    "Finding your topic in the documents..."
+                    if chosen_topic
+                    else "Choosing a topic from your documents..."
                 )
-                st.session_state.challenge = None
-                st.session_state.correction_result = None
-                st.rerun()
-            except Exception:
-                st.error("Evaluation failed. Make sure the backend and Ollama are running.")
+                with st.spinner(spinner_text):
+                    try:
+                        result = start_teachback(
+                            audience,
+                            chosen_topic.strip() if chosen_topic else None,
+                        )
+                        st.session_state.teachback_session = {
+                            "topic": result["topic"],
+                            "audience": audience,
+                            "messages": [
+                                {"role": "student", "content": result["message"]}
+                            ],
+                            "sources": result["sources"],
+                        }
+                        st.session_state.evaluation = None
+                        st.rerun()
+                    except Exception:
+                        st.error(
+                            "A session could not be started. Check the topic and uploaded documents."
+                        )
+    else:
+        st.info(f"Your assigned topic: **{session['topic']}**")
+        st.caption(f"You are teaching {session['audience'].lower()}.")
+
+        for message in session["messages"]:
+            chat_role = "user" if message["role"] == "teacher" else "assistant"
+            with st.chat_message(chat_role):
+                st.markdown(message["content"])
+
+        teacher_turns = sum(
+            message["role"] == "teacher" for message in session["messages"]
+        )
+        evaluation = st.session_state.evaluation
+        if evaluation is None and teacher_turns < 6:
+            with st.form(f"teachback_turn_{teacher_turns}"):
+                reply = st.text_area(
+                    "Your explanation" if teacher_turns == 0 else "Your answer",
+                    key=f"teachback_reply_{teacher_turns}",
+                    height=140,
+                    max_chars=2000,
+                    placeholder=(
+                        "Explain the assigned topic in your own words..."
+                        if teacher_turns == 0
+                        else "Answer the AI student's question in your own words..."
+                    ),
+                )
+                sent = st.form_submit_button(
+                    "Teach the student" if teacher_turns == 0 else "Send my answer",
+                    type="primary",
+                )
+
+            if sent:
+                minimum_length = 20 if teacher_turns == 0 else 5
+                if len(reply.strip()) < minimum_length:
+                    st.warning(
+                        f"Please write at least {minimum_length} characters before sending."
+                    )
+                else:
+                    conversation = session["messages"] + [
+                        {"role": "teacher", "content": reply.strip()}
+                    ]
+                    with st.spinner("The AI student is thinking of a question..."):
+                        try:
+                            result = continue_teachback(
+                                session["topic"],
+                                session["audience"],
+                                conversation,
+                            )
+                            session["messages"] = conversation + [
+                                {"role": "student", "content": result["question"]}
+                            ]
+                            session["sources"] = list(
+                                dict.fromkeys(session["sources"] + result["sources"])
+                            )
+                            st.rerun()
+                        except Exception:
+                            st.error(
+                                "The AI student could not reply. Check the backend and try again."
+                            )
+        elif evaluation is None:
+            st.info("You completed six teaching turns. Finish the session to see your feedback.")
+
+        if evaluation is None:
+            action_column, reset_column = st.columns(2)
+            with action_column:
+                if st.button(
+                    "Finish and evaluate",
+                    type="primary",
+                    width="stretch",
+                    disabled=teacher_turns == 0,
+                ):
+                    with st.spinner("Checking the full conversation against the documents..."):
+                        try:
+                            st.session_state.evaluation = evaluate_teachback(
+                                session["topic"],
+                                teaching_transcript(session["messages"]),
+                                session["audience"],
+                            )
+                            st.session_state.challenge = None
+                            st.session_state.correction_result = None
+                            st.rerun()
+                        except Exception:
+                            st.error(
+                                "Evaluation failed. Make sure the backend and Ollama are running."
+                            )
+            with reset_column:
+                st.button(
+                    "Cancel this session",
+                    on_click=start_new_teachback,
+                    width="stretch",
+                )
 
     evaluation = st.session_state.evaluation
     if evaluation:
@@ -222,9 +320,6 @@ with teach_tab:
         else:
             st.success("Your wording was clear for the selected audience.")
 
-        st.markdown("### AI student's follow-up question")
-        st.info(evaluation["follow_up_question"])
-
         with st.expander("See an improved explanation"):
             st.write(evaluation["improved_explanation"])
         with st.expander("Evidence used"):
@@ -233,9 +328,13 @@ with teach_tab:
 
         action_column, challenge_column = st.columns(2)
         with action_column:
-            st.button("Start a reteach attempt", on_click=start_reteach, use_container_width=True)
+            st.button(
+                "Start another session",
+                on_click=start_new_teachback,
+                width="stretch",
+            )
         with challenge_column:
-            if st.button("Give me a mistake to correct", use_container_width=True):
+            if st.button("Give me a mistake to correct", width="stretch"):
                 with st.spinner("Creating a challenge..."):
                     try:
                         st.session_state.challenge = create_challenge(evaluation["topic"])
@@ -299,7 +398,7 @@ with progress_tab:
                 }
                 for session in progress["sessions"]
             ]
-            st.dataframe(rows, use_container_width=True, hide_index=True)
+            st.dataframe(rows, width="stretch", hide_index=True)
         else:
             st.info("Complete your first TeachBack session to start tracking progress.")
     except Exception:

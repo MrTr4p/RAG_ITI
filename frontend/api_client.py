@@ -70,6 +70,38 @@ def generate_topics(count: int = 5) -> dict:
     return response.json()
 
 
+def start_teachback(audience: str, topic: str | None = None) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/start",
+        json={"audience": audience, "topic": topic},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def continue_teachback(topic: str, audience: str, conversation: list[dict]) -> dict:
+    api_base_url = os.getenv("API_BASE_URL")
+    if not api_base_url:
+        raise RuntimeError("API_BASE_URL is not set")
+
+    response = requests.post(
+        f"{api_base_url}/teachback/turn",
+        json={
+            "topic": topic,
+            "audience": audience,
+            "conversation": conversation[-20:],
+        },
+        timeout=180,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
 def evaluate_teachback(topic: str, explanation: str, audience: str) -> dict:
     api_base_url = os.getenv("API_BASE_URL")
     if not api_base_url:

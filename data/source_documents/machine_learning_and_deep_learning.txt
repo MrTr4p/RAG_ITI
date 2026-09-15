@@ -1,0 +1,87 @@
+MACHINE LEARNING AND DEEP LEARNING: STUDY NOTES
+
+1. Artificial Intelligence, Machine Learning, and Deep Learning
+
+Artificial intelligence (AI) is the broad field of building computer systems that perform tasks that normally require human intelligence, such as understanding language, recognizing images, planning, or making decisions. Machine learning (ML) is a subfield of AI. Instead of writing a fixed rule for every situation, developers give a machine learning algorithm examples or experience so that it can learn useful patterns. Deep learning (DL) is a subfield of machine learning that uses neural networks with many layers. Therefore, every deep learning system is a machine learning system, but not every machine learning system uses deep learning.
+
+A traditional rule-based spam filter might contain manually written rules such as "mark a message as spam when it contains several suspicious phrases." A machine learning spam filter learns patterns from many emails that humans have already labeled as spam or not spam. It can then predict the label of a new email. The learned rules are represented by model parameters rather than a list of instructions written by a programmer.
+
+2. Data, Features, Labels, and Models
+
+Data is the collection of examples used in a machine learning project. A single example is often called a sample. A feature is an input property that may help the model make a prediction. For a house-price model, features could include floor area, number of rooms, age, and location. A label or target is the correct output the model should learn to predict. In the house-price example, the label is the known sale price.
+
+A model is a mathematical function that maps inputs to outputs. Training is the process of adjusting the model's parameters so that its predictions become closer to the correct targets. Inference is the use of a trained model to make predictions on new data. Training is normally more computationally expensive than inference because training repeatedly updates the parameters, while inference only uses the parameters that have already been learned.
+
+Features are not the same as labels. Features are supplied to the model as input, while a label is the desired output during supervised training. A model should not be given information that would only be known after the real-world outcome occurs. Including such information causes data leakage and can produce unrealistically high evaluation results.
+
+3. Main Types of Machine Learning
+
+Supervised learning uses examples with known labels. The goal is to learn a mapping from features to a target. Classification is a supervised task in which the output is a category, such as spam or not spam, fraudulent or legitimate, and sick or healthy. Regression is a supervised task in which the output is a number, such as a house price, temperature, or delivery time.
+
+Unsupervised learning uses data without target labels. The system tries to discover structure in the data. Clustering groups similar examples together. For example, a shop may cluster customers according to purchasing behavior without having predefined customer types. Dimensionality reduction creates a smaller set of informative variables and can support visualization, compression, or faster processing.
+
+Reinforcement learning involves an agent interacting with an environment. The agent chooses actions, receives rewards or penalties, and learns a strategy called a policy that aims to maximize long-term reward. A game-playing system or a robot learning to navigate can use reinforcement learning. Reinforcement learning is not the same as supervised learning because the agent is not simply given the correct action for every situation.
+
+4. The Machine Learning Workflow
+
+A typical project begins by defining the problem and deciding how success will be measured. The next steps are collecting data, cleaning it, exploring it, selecting useful features, splitting the data, training a baseline model, evaluating the model, improving it, and monitoring it after deployment. Data quality is often more important than choosing a complicated algorithm. Missing values, duplicate records, incorrect labels, biased samples, and inconsistent measurement can all damage performance.
+
+The available data is commonly divided into three separate sets. The training set is used to fit the model's parameters. The validation set is used to compare model choices and tune hyperparameters. The test set is kept separate until the final evaluation so that it can estimate performance on unseen data. Hyperparameters are settings chosen before or around training, such as the learning rate, maximum tree depth, number of layers, or batch size. They are different from parameters, which are learned from the training data.
+
+The split must match the real use case. For time-dependent data, randomly mixing future and past examples may leak future information into training. A time-based split is usually safer. Examples from the same person, machine, or organization may also need to stay in the same split to prevent the model from memorizing that entity.
+
+5. Generalization, Overfitting, and Underfitting
+
+Generalization is the ability of a model to perform well on new examples that were not used for training. Good training performance alone is not enough. A model that memorizes the training data but performs poorly on new data is overfitting. Overfitting can happen when a model is too complex for the amount or quality of available data, when it trains for too long, or when the data contains leakage.
+
+Common ways to reduce overfitting include collecting more representative data, simplifying the model, using regularization, applying data augmentation, and stopping training when validation performance stops improving. Regularization discourages unnecessarily complex parameter values. Dropout is a deep learning regularization method that temporarily disables random units during training. Dropout is normally turned off during inference.
+
+Underfitting occurs when a model is too simple or insufficiently trained to capture important patterns. An underfit model performs poorly on both training data and validation data. Possible solutions include using better features, increasing model capacity, reducing excessive regularization, or training longer.
+
+6. Evaluating Machine Learning Models
+
+Accuracy is the fraction of predictions that are correct, but it can be misleading for imbalanced classification. If only one percent of transactions are fraudulent, a model that always predicts "legitimate" achieves ninety-nine percent accuracy while detecting no fraud.
+
+Precision measures how many predicted positive cases are actually positive. Recall measures how many of the actual positive cases the model finds. High precision is important when false alarms are costly. High recall is important when missing a positive case is costly. The F1 score combines precision and recall using their harmonic mean. A confusion matrix shows true positives, true negatives, false positives, and false negatives.
+
+For regression, common measures include mean absolute error and mean squared error. Mean absolute error averages the absolute size of each error and is relatively easy to interpret. Mean squared error gives extra weight to large errors because every error is squared. The evaluation measure should reflect the real cost of mistakes rather than being selected only because it is popular.
+
+7. Neural Networks
+
+A neural network is made of connected computational units often called neurons. A basic feed-forward network contains an input layer, one or more hidden layers, and an output layer. Each connection has a weight, and many units also have a bias. A unit calculates a weighted sum of its inputs and then applies an activation function. Nonlinear activation functions allow the network to learn relationships that a purely linear model cannot represent.
+
+During forward propagation, input data moves through the layers to produce a prediction. A loss function measures the difference between the prediction and the correct target. During backpropagation, the system uses the chain rule from calculus to calculate how each parameter contributed to the loss. An optimizer then updates the parameters. Backpropagation calculates gradients; it does not directly choose the final parameter values by itself.
+
+Gradient descent is an optimization method that changes parameters in the direction that reduces the loss. The learning rate controls the size of each update. A learning rate that is too large may make training unstable or cause the model to miss a useful solution. A learning rate that is too small can make training very slow. A batch is a group of training examples processed before an update, and an epoch is one complete pass through the training set.
+
+8. Why Deep Learning Is Different
+
+Deep learning uses neural networks with multiple representation-learning layers. Earlier layers often learn simple patterns, while later layers combine them into more abstract patterns. In image recognition, early layers may respond to edges, middle layers may represent textures or shapes, and later layers may represent object parts or whole objects.
+
+Deep learning can learn useful representations directly from raw or lightly processed data, reducing the need for some manual feature engineering. However, deep learning is not automatically the best choice for every problem. It often requires more data, computation, training time, and careful tuning than simpler methods. For small structured tables, methods such as linear models or decision-tree ensembles may be faster, easier to explain, and equally or more accurate.
+
+9. Important Deep Learning Architectures
+
+Convolutional neural networks are designed to detect local patterns and reuse the same filters across different positions. They are especially useful for images and other grid-like data. Pooling or strided operations can reduce spatial size, although modern architectures use several alternatives. A convolutional network does not understand an image exactly as a human does; it learns statistical patterns that help with its training objective.
+
+Recurrent neural networks process sequences while carrying information from earlier steps. They have been used for text, speech, and time series. Basic recurrent networks can struggle to preserve information over long sequences. Gated designs such as long short-term memory networks help control what information is remembered or forgotten.
+
+Transformers use attention mechanisms to model relationships between elements of a sequence. Attention allows the model to give different importance to different parts of the input. Transformers can process many sequence positions in parallel during training and have become widely used for language, vision, audio, and multimodal systems. Attention is powerful, but it does not guarantee that every generated answer is factually correct.
+
+10. Responsible Use and Limitations
+
+A model can reproduce bias present in its training data. Evaluation should therefore examine performance across relevant groups, not only a single average score. Privacy must also be considered when data contains personal or sensitive information. Teams should collect only necessary data, control access, and document how the data and model are used.
+
+Performance can decrease after deployment when real-world data changes. This is called data drift or concept drift, depending on what has changed. Monitoring should track input quality, prediction distributions, errors, latency, and important group-level measures. A model may need retraining when its operating environment changes.
+
+Human oversight is important in high-impact areas such as medicine, employment, finance, and public services. A confident prediction is not automatically a correct or fair prediction. The appropriate level of automation depends on the cost of errors, the ability to review decisions, and the needs of affected people.
+
+11. Complete Example: Email Spam Classification
+
+Suppose a team wants to classify incoming email as spam or not spam. Each email is an example, and the known category is its label. Useful features may come from the message text, sender information, links, and formatting. The team divides historical labeled email into training, validation, and test sets while taking care to prevent duplicate messages from appearing in different sets.
+
+The team first trains a simple baseline. It evaluates precision and recall because both unnecessary blocking and missed spam matter. It then compares more advanced models using the validation set. The test set is used only after the main choices have been made. After deployment, the team monitors changing spam tactics, false alarms, missed spam, and performance for different languages. This example shows that a successful machine learning system requires suitable data, correct evaluation, monitoring, and human decisions, not only a powerful algorithm.
+
+12. Key Summary
+
+Machine learning learns patterns from examples, while deep learning is a type of machine learning based on multilayer neural networks. Supervised learning uses labels, unsupervised learning discovers structure without target labels, and reinforcement learning learns from interaction and rewards. Training adjusts model parameters, while inference uses learned parameters to make new predictions. Separate training, validation, and test sets help measure generalization. Overfitting means memorizing training patterns that do not transfer well to new data. Model evaluation must match the real cost of errors. Deep learning is powerful for complex data, but simpler models can be better when data is limited, structured, or when interpretability is important.

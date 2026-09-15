@@ -13,7 +13,11 @@ class FakeCollection:
 class FakeRetriever:
     collection = FakeCollection()
 
+    def __init__(self):
+        self.search_calls = []
+
     def search(self, question, limit):
+        self.search_calls.append((question, limit))
         return [
             SimpleNamespace(
                 text="The project needs a FastAPI backend.",
@@ -58,6 +62,9 @@ class FakeGenerator:
             "follow_up_question": "What does the query route return?",
             "improved_explanation": "FastAPI exposes the RAG pipeline through API routes.",
         }
+
+    def ask_follow_up(self, topic, audience, conversation, chunks):
+        return "Why does the backend need an API route?"
 
     def make_challenge(self, topic, chunks):
         return "FastAPI stores document embeddings by itself."
@@ -140,6 +147,84 @@ def test_generate_teachback_topics():
     assert response.status_code == 200
     assert response.json()["topics"] == ["FastAPI", "RAG workflow", "Vector databases"]
     assert response.json()["sources"] == ["course_notes.pdf, page 3"]
+
+
+def test_start_teachback_assigns_a_topic():
+    with make_client() as client:
+        response = client.post(
+            "/teachback/start",
+            json={"audience": "A beginner"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["topic"] == "FastAPI"
+    assert "explain it to me" in response.json()["message"]
+    assert response.json()["sources"] == ["course_notes.pdf, page 3"]
+
+
+def test_start_teachback_accepts_a_chosen_topic():
+    with make_client() as client:
+        response = client.post(
+            "/teachback/start",
+            json={
+                "audience": "A classmate",
+                "topic": "Vector databases",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["topic"] == "Vector databases"
+    assert response.json()["message"].startswith(
+        "I am learning about Vector databases."
+    )
+    assert response.json()["sources"] == ["course_notes.pdf, page 3"]
+
+
+def test_teachback_turn_returns_student_question():
+    client = make_client()
+    with client:
+        response = client.post(
+            "/teachback/turn",
+            json={
+                "topic": "FastAPI",
+                "audience": "A beginner",
+                "conversation": [
+                    {
+                        "role": "student",
+                        "content": "Could you explain FastAPI to me?",
+                    },
+                    {
+                        "role": "teacher",
+                        "content": "FastAPI is used to build the project backend.",
+                    },
+                ],
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["question"] == "Why does the backend need an API route?"
+    assert response.json()["sources"] == ["course_notes.pdf, page 3"]
+    assert client.app.state.retriever.search_calls[-1] == ("FastAPI", 4)
+
+
+def test_teachback_turn_requires_a_teacher_reply():
+    with make_client() as client:
+        response = client.post(
+            "/teachback/turn",
+            json={
+                "topic": "FastAPI",
+                "audience": "A beginner",
+                "conversation": [
+                    {
+                        "role": "student",
+                        "content": "Could you explain FastAPI to me?",
+                    }
+                ],
+            },
+        )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "The latest turn must be from the teacher"
 
 
 def test_evaluate_teachback_and_save_progress():

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">TeachBack AI architecture and runtime flow</title>
+  <desc id="desc">Three-stage flow covering knowledge preparation, the interactive TeachBack loop, and final evaluation with jargon detection and progress storage.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2F6FED"/>
+    </marker>
+    <style>
+      .title { font: 700 42px Inter, Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 20px Inter, Arial, sans-serif; fill: #475569; }
+      .phase { font: 700 22px Inter, Arial, sans-serif; fill: #0F172A; }
+      .phaseNumber { font: 700 18px Inter, Arial, sans-serif; fill: white; text-anchor: middle; dominant-baseline: middle; }
+      .nodeTitle { font: 700 17px Inter, Arial, sans-serif; fill: #0F172A; text-anchor: middle; }
+      .nodeBody { font: 400 14px Inter, Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .edgeLabel { font: 600 13px Inter, Arial, sans-serif; fill: #475569; text-anchor: middle; }
+      .tag { font: 700 13px Inter, Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; }
+      .footer { font: 500 14px Inter, Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #475569; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrowBlue { stroke: #2F6FED; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .evidence { stroke: #22A06B; stroke-width: 3; stroke-dasharray: 8 7; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#F8FAFC"/>
+
+  <text x="62" y="67" class="title">TeachBack AI — Architecture &amp; Runtime Flow</text>
+  <text x="64" y="102" class="subtitle">Document-grounded learning through an adaptive AI student, structured evaluation, and saved progress</text>
+  <rect x="1465" y="45" width="390" height="54" rx="27" fill="#FFF4E5" stroke="#F59E0B" stroke-width="2"/>
+  <text x="1660" y="73" class="nodeTitle">Local AI: Ollama + Qwen 2.5 3B</text>
+  <text x="1660" y="91" class="nodeBody">Low-temperature structured generation</text>
+
+  <!-- Phase 1 -->
+  <rect x="55" y="130" width="1810" height="245" rx="24" fill="#FFFFFF" stroke="#D8E0EB" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="91" cy="169" r="20" fill="#2F6FED"/>
+  <text x="91" y="170" class="phaseNumber">1</text>
+  <text x="124" y="176" class="phase">Knowledge Preparation</text>
+
+  <rect x="90" y="220" width="230" height="100" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="205" y="260" class="nodeTitle">Upload Material</text>
+  <text x="205" y="286" class="nodeBody">PDF or TXT</text>
+
+  <rect x="385" y="220" width="240" height="100" rx="16" fill="#F1ECFF" stroke="#6E56CF" stroke-width="2"/>
+  <text x="505" y="253" class="nodeTitle">Extract Text</text>
+  <text x="505" y="278" class="nodeBody">Keep source name</text>
+  <text x="505" y="298" class="nodeBody">and page metadata</text>
+
+  <rect x="690" y="220" width="250" height="100" rx="16" fill="#F1ECFF" stroke="#6E56CF" stroke-width="2"/>
+  <text x="815" y="253" class="nodeTitle">Split into Chunks</text>
+  <text x="815" y="278" class="nodeBody">700 characters</text>
+  <text x="815" y="298" class="nodeBody">120 character overlap</text>
+
+  <rect x="1005" y="220" width="250" height="100" rx="16" fill="#FFF4E5" stroke="#F59E0B" stroke-width="2"/>
+  <text x="1130" y="253" class="nodeTitle">MiniLM Embeddings</text>
+  <text x="1130" y="278" class="nodeBody">Convert meaning into</text>
+  <text x="1130" y="298" class="nodeBody">normalized vectors</text>
+
+  <rect x="1320" y="220" width="250" height="100" rx="16" fill="#ECFDF3" stroke="#22A06B" stroke-width="2"/>
+  <text x="1445" y="253" class="nodeTitle">Chroma Vector Store</text>
+  <text x="1445" y="278" class="nodeBody">Chunks + embeddings</text>
+  <text x="1445" y="298" class="nodeBody">+ source metadata</text>
+
+  <rect x="1628" y="220" width="195" height="100" rx="16" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
+  <text x="1725" y="253" class="nodeTitle">Ready to Search</text>
+  <text x="1725" y="278" class="nodeBody">Grounded knowledge</text>
+  <text x="1725" y="298" class="nodeBody">index</text>
+
+  <path d="M320 270 H374" class="arrow"/>
+  <path d="M625 270 H679" class="arrow"/>
+  <path d="M940 270 H994" class="arrow"/>
+  <path d="M1255 270 H1309" class="arrow"/>
+  <path d="M1570 270 H1617" class="arrow"/>
+
+  <!-- Phase 2 -->
+  <rect x="55" y="400" width="1810" height="330" rx="24" fill="#FFFFFF" stroke="#D8E0EB" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="91" cy="439" r="20" fill="#6E56CF"/>
+  <text x="91" y="440" class="phaseNumber">2</text>
+  <text x="124" y="446" class="phase">Interactive TeachBack Loop</text>
+
+  <rect x="90" y="490" width="220" height="105" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="200" y="526" class="nodeTitle">Start Session</text>
+  <text x="200" y="551" class="nodeBody">Choose a topic or</text>
+  <text x="200" y="571" class="nodeBody">let AI assign one</text>
+
+  <rect x="365" y="490" width="220" height="105" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="475" y="526" class="nodeTitle">Teacher Answer</text>
+  <text x="475" y="551" class="nodeBody">Topic explanation or</text>
+  <text x="475" y="571" class="nodeBody">follow-up response</text>
+
+  <rect x="640" y="490" width="230" height="105" rx="16" fill="#F1ECFF" stroke="#6E56CF" stroke-width="2"/>
+  <text x="755" y="526" class="nodeTitle">Retrieve Evidence</text>
+  <text x="755" y="551" class="nodeBody">4 chunks searched</text>
+  <text x="755" y="571" class="nodeBody">by assigned topic</text>
+
+  <rect x="925" y="490" width="235" height="105" rx="16" fill="#FFF4E5" stroke="#F59E0B" stroke-width="2"/>
+  <text x="1042" y="526" class="nodeTitle">Generate Next Question</text>
+  <text x="1042" y="551" class="nodeBody">Qwen uses evidence,</text>
+  <text x="1042" y="571" class="nodeBody">history, and latest answer</text>
+
+  <path d="M1272 495 L1372 542 L1272 589 L1172 542 Z" fill="#FFF0F5" stroke="#D94F70" stroke-width="2"/>
+  <text x="1272" y="535" class="nodeTitle">Shallow</text>
+  <text x="1272" y="557" class="nodeTitle">Question?</text>
+
+  <rect x="1435" y="490" width="190" height="105" rx="16" fill="#FFF0F5" stroke="#D94F70" stroke-width="2"/>
+  <text x="1530" y="526" class="nodeTitle">Question Guard</text>
+  <text x="1530" y="551" class="nodeBody">Regenerate definition</text>
+  <text x="1530" y="571" class="nodeBody">or restatement prompts</text>
+
+  <rect x="1670" y="490" width="160" height="105" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="1750" y="526" class="nodeTitle">AI Student</text>
+  <text x="1750" y="551" class="nodeBody">Ask one useful</text>
+  <text x="1750" y="571" class="nodeBody">how or why question</text>
+
+  <path d="M310 542 H354" class="arrow"/>
+  <path d="M585 542 H629" class="arrow"/>
+  <path d="M870 542 H914" class="arrow"/>
+  <path d="M1160 542 H1161" class="arrow"/>
+  <path d="M1372 542 H1424" class="arrow"/>
+  <text x="1400" y="526" class="edgeLabel">Yes</text>
+  <path d="M1272 589 V630 H1640 V542 H1659" class="arrow"/>
+  <text x="1320" y="620" class="edgeLabel">No</text>
+  <path d="M1625 542 H1659" class="arrow"/>
+  <path d="M1750 595 V675 H475 V606" class="arrowBlue"/>
+  <text x="1090" y="697" class="edgeLabel">Continue the lesson — up to 6 teacher turns</text>
+  <path d="M1445 320 V455 H755 V479" class="evidence"/>
+  <text x="1110" y="445" class="edgeLabel">Grounding evidence</text>
+
+  <!-- Phase 3 -->
+  <rect x="55" y="755" width="1810" height="245" rx="24" fill="#FFFFFF" stroke="#D8E0EB" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="91" cy="794" r="20" fill="#22A06B"/>
+  <text x="91" y="795" class="phaseNumber">3</text>
+  <text x="124" y="801" class="phase">Final Evaluation and Progress</text>
+
+  <rect x="90" y="845" width="210" height="100" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="195" y="885" class="nodeTitle">Finish Session</text>
+  <text x="195" y="911" class="nodeBody">User requests feedback</text>
+
+  <rect x="350" y="845" width="225" height="100" rx="16" fill="#F1ECFF" stroke="#6E56CF" stroke-width="2"/>
+  <text x="462" y="878" class="nodeTitle">Build Transcript</text>
+  <text x="462" y="903" class="nodeBody">Teacher statements</text>
+  <text x="462" y="923" class="nodeBody">+ student question context</text>
+
+  <rect x="625" y="845" width="215" height="100" rx="16" fill="#F1ECFF" stroke="#6E56CF" stroke-width="2"/>
+  <text x="732" y="878" class="nodeTitle">Retrieve Evidence</text>
+  <text x="732" y="903" class="nodeBody">8 relevant chunks</text>
+  <text x="732" y="923" class="nodeBody">for final grounding</text>
+
+  <rect x="890" y="845" width="235" height="100" rx="16" fill="#FFF4E5" stroke="#F59E0B" stroke-width="2"/>
+  <text x="1007" y="878" class="nodeTitle">Qwen Evaluation</text>
+  <text x="1007" y="903" class="nodeBody">Score only what</text>
+  <text x="1007" y="923" class="nodeBody">the teacher said</text>
+
+  <rect x="1175" y="845" width="245" height="100" rx="16" fill="#FFF0F5" stroke="#D94F70" stroke-width="2"/>
+  <text x="1297" y="878" class="nodeTitle">Result Processing</text>
+  <text x="1297" y="903" class="nodeBody">Clamp scores 0–100</text>
+  <text x="1297" y="923" class="nodeBody">Deduplicate jargon, max 5</text>
+
+  <rect x="1470" y="845" width="180" height="100" rx="16" fill="#EAF2FF" stroke="#2F6FED" stroke-width="2"/>
+  <text x="1560" y="878" class="nodeTitle">Show Feedback</text>
+  <text x="1560" y="903" class="nodeBody">Scores, gaps,</text>
+  <text x="1560" y="923" class="nodeBody">jargon, evidence</text>
+
+  <rect x="1700" y="845" width="130" height="100" rx="16" fill="#ECFDF3" stroke="#22A06B" stroke-width="2"/>
+  <text x="1765" y="878" class="nodeTitle">Progress</text>
+  <text x="1765" y="903" class="nodeBody">Save attempt</text>
+  <text x="1765" y="923" class="nodeBody">and mastery</text>
+
+  <path d="M300 895 H339" class="arrow"/>
+  <path d="M575 895 H614" class="arrow"/>
+  <path d="M840 895 H879" class="arrow"/>
+  <path d="M1125 895 H1164" class="arrow"/>
+  <path d="M1420 895 H1459" class="arrow"/>
+  <path d="M1650 895 H1689" class="arrow"/>
+  <path d="M1445 320 V810 H732 V834" class="evidence"/>
+
+  <!-- Legend -->
+  <rect x="55" y="1025" width="1810" height="38" rx="19" fill="#FFFFFF" stroke="#D8E0EB"/>
+  <rect x="85" y="1037" width="18" height="14" rx="4" fill="#EAF2FF" stroke="#2F6FED"/>
+  <text x="113" y="1049" class="footer">User interface</text>
+  <rect x="280" y="1037" width="18" height="14" rx="4" fill="#F1ECFF" stroke="#6E56CF"/>
+  <text x="308" y="1049" class="footer">Backend processing</text>
+  <rect x="515" y="1037" width="18" height="14" rx="4" fill="#FFF4E5" stroke="#F59E0B"/>
+  <text x="543" y="1049" class="footer">AI model</text>
+  <rect x="690" y="1037" width="18" height="14" rx="4" fill="#ECFDF3" stroke="#22A06B"/>
+  <text x="718" y="1049" class="footer">Stored data</text>
+  <rect x="865" y="1037" width="18" height="14" rx="4" fill="#FFF0F5" stroke="#D94F70"/>
+  <text x="893" y="1049" class="footer">Guard or detector</text>
+  <line x1="1105" y1="1044" x2="1155" y2="1044" class="evidence"/>
+  <text x="1172" y="1049" class="footer">Evidence supplied from the vector store</text>
+  <text x="1815" y="1049" class="footer" text-anchor="end">FastAPI backend • Streamlit UI • Local Ollama runtime</text>
+</svg>

@@ -40,9 +40,36 @@ class TopicResponse(BaseModel):
     sources: list[str]
 
 
+class TeachBackStartRequest(BaseModel):
+    audience: Audience = "A beginner"
+    topic: str | None = Field(default=None, min_length=2, max_length=200)
+
+
+class TeachBackStartResponse(BaseModel):
+    topic: str
+    message: str
+    sources: list[str]
+
+
+class TeachBackTurn(BaseModel):
+    role: Literal["teacher", "student"]
+    content: str = Field(min_length=1, max_length=2000)
+
+
+class TeachBackTurnRequest(BaseModel):
+    topic: str = Field(min_length=2, max_length=200)
+    audience: Audience = "A beginner"
+    conversation: list[TeachBackTurn] = Field(min_length=1, max_length=20)
+
+
+class TeachBackTurnResponse(BaseModel):
+    question: str
+    sources: list[str]
+
+
 class TeachBackRequest(BaseModel):
     topic: str = Field(min_length=2, max_length=200)
-    explanation: str = Field(min_length=20, max_length=6000)
+    explanation: str = Field(min_length=20, max_length=16000)
     audience: Audience = "A beginner"
 
 
